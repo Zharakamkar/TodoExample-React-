@@ -11,17 +11,23 @@ const TypeTodo = ({ setTodoList, todoList, edit, setEdit }) => {
   });
 
   const editTodoList = () => {
-    const EditList = todoList.map((item) => {
+    const EditList = todoList.find((item) => {
       if (+item.id === +edit.ID) {
-        // item.title = newTodo.title;
-        // item.text = newTodo.text;
-        // item.id = edit.ID;
-        // item.isEdit = false;
+        item.title = edit.title;
+        item.text = edit.text;
+        item.id = edit.ID;
+        item.isEdit = false;
+        return item;
       }
-      console.log(item);
     });
-    // setTodoList(EditList);
-    console.log(EditList);
+    setTodoList(() => {
+      todoList.map((item) => {
+        if (EditList.id === item.id) {
+          item = EditList;
+        }
+      });
+      return [...todoList];
+    });
   };
 
   return (
@@ -33,10 +39,20 @@ const TypeTodo = ({ setTodoList, todoList, edit, setEdit }) => {
           <input
             type="text"
             className="p-2"
-            value={edit.isEdit === true ? newTodo.title : null}
+            value={
+              edit.isEdit === true
+                ? (newTodo.title = edit.title)
+                : newTodo.title
+            }
             placeholder="type your title"
             onChange={(e) =>
-              setNewTodo({ ...newTodo, title: e.target.value, id: Date.now() })
+              edit.isEdit
+                ? setEdit({ ...edit, title: e.target.value })
+                : setNewTodo({
+                    ...newTodo,
+                    title: e.target.value,
+                    id: Date.now(),
+                  })
             }
           />
           <textarea
@@ -44,10 +60,16 @@ const TypeTodo = ({ setTodoList, todoList, edit, setEdit }) => {
             placeholder="start typing here..."
             name=""
             id=""
-            value={edit.isEdit === true ? newTodo.text : null}
+            value={
+              edit.isEdit === true ? (newTodo.title = edit.text) : newTodo.text
+            }
             cols="30"
             rows="10"
-            onChange={(e) => setNewTodo({ ...newTodo, text: e.target.value })}
+            onChange={(e) => {
+              edit.isEdit
+                ? setEdit({ ...edit, text: e.target.value })
+                : setNewTodo({ ...newTodo, text: e.target.value });
+            }}
           ></textarea>
           <button
             type="submit"
@@ -56,9 +78,13 @@ const TypeTodo = ({ setTodoList, todoList, edit, setEdit }) => {
               e.preventDefault();
               !edit.isEdit
                 ? setTodoList([...todoList, newTodo])
-                : editTodoList();
-
-              // form.reset();
+                : editTodoList(),
+                setEdit({
+                  id: 0,
+                  title: "",
+                  text: "",
+                  isEdit: false,
+                });
             }}
           >
             submit
